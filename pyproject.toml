@@ -1,0 +1,48 @@
+[build-system]
+requires = ["scikit-build-core"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "sceliash"
+dynamic = ["version"]
+readme = {file = "README.md", content-type = "text/markdown"}
+description = "This is the sceliash module."
+authors = [
+    {name = "Atsushi Togo", email = "atztogo@gmail.com"}
+]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "spglib",
+    "phonopy",
+    "phono3py",
+]
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+
+[tool.scikit-build]
+metadata.version.provider = "scikit_build_core.metadata.setuptools_scm"
+
+[tool.setuptools_scm]
+write_to = "src/sceliash/_version.py"
+
+[project.urls]
+"Homepage" = "https://github.com/atztogo/sceliash"
+
+[tool.ruff]
+line-length = 88
+select = [
+    "F", # Flake8
+    "B", # Black
+    "I", # isort
+    "E", # pycodestyle-errors
+    "D", # pydocstyle
+]
+extend-ignore = [
+    "D417",
+    "D100",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
