@@ -219,6 +219,10 @@ class EliashbergFunction:
         # a2f at qj in 1/2piTHz unit [ispin, itemp, ikpt, ib]
         a2f_at_qj = np.zeros(self._gamma.shape, dtype="double")
         a2f = []
+
+        # Sum over spins
+        dos_at_ef = self._dos_at_ef.sum(axis=0)
+
         for ispin in range(self._gamma.shape[0]):
             # delta function is in 1/2piTHz unit.
             for itemp in range(self._gamma.shape[1]):
@@ -227,7 +231,7 @@ class EliashbergFunction:
                     / (2 * np.pi)
                     * self._gamma[ispin, itemp, :, :]
                     / self._freqs
-                    / self._dos_at_ef[ispin, itemp]
+                    / dos_at_ef[itemp]
                 )
 
             kappados = KappaDOSTHM(
@@ -242,15 +246,7 @@ class EliashbergFunction:
             freq_points, _a2f = kappados.get_kdos()
             a2f.append(_a2f[:, :, 1, 0])
 
-        # non-mag : gamma -> 2gamma
-        # collinear : -
-        # non-collinear : dos_at_ef -> dos_at_ef / 2
-        if self._ncdij == 2:
-            coef = 1
-        else:
-            coef = 2
-
-        return freq_points, np.array(a2f) * coef
+        return freq_points, np.array(a2f)
 
 
 def _collect_data_from_vaspout(h5_filename: str) -> dict:
