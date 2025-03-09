@@ -70,6 +70,11 @@ class EliashbergFunction:
         return self._data.temps
 
     @property
+    def frequencies(self):
+        """Return frequencies."""
+        return self._data.freqs
+
+    @property
     def lambda_constant(self):
         """Return lambda constant."""
         return self._lambda_constant

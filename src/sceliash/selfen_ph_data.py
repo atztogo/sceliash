@@ -32,10 +32,10 @@ class SelfenPH:
     freq_points_vasp: Optional[np.ndarray] = None
 
 
-def load_vaspout_h5(self, h5_filename: str) -> SelfenPH:
+def load_vaspout_h5(h5_filename: str) -> SelfenPH:
     """Load data from vaspout.h5 file.
 
-    Energy unit is in 2piTHz.
+    Energy unit of 2piTHz is used.
 
     """
     vals = _collect_data_from_vaspout(h5_filename)
@@ -57,15 +57,15 @@ def load_vaspout_h5(self, h5_filename: str) -> SelfenPH:
     sym_dataset = spglib.get_symmetry_dataset((lattice, positions, numbers))
     mesh = np.linalg.inv(lattice.T @ k_gen_vecs).T
     mesh = np.rint(mesh).astype(int)
-    _bz_grid = BZGrid(mesh, lattice=lattice, symmetry_dataset=sym_dataset)
-    _ir_grid_points, _ir_grid_weights, _ir_grid_map = get_ir_grid_points(_bz_grid)
+    bz_grid = BZGrid(mesh, lattice=lattice, symmetry_dataset=sym_dataset)
+    ir_grid_points, ir_grid_weights, ir_grid_map = get_ir_grid_points(bz_grid)
 
     ir_addresss = np.rint(ir_kpoints @ mesh).astype(int)
-    gps = get_grid_point_from_address(ir_addresss, _bz_grid.D_diag)
-    irgp = _ir_grid_map[gps]
-    id_map = [np.where(irgp == gp)[0][0] for gp in _ir_grid_points]
+    gps = get_grid_point_from_address(ir_addresss, bz_grid.D_diag)
+    irgp = ir_grid_map[gps]
+    id_map = [np.where(irgp == gp)[0][0] for gp in ir_grid_points]
     ir_kpoints_weights *= np.linalg.det(mesh)
-    assert (np.abs(_ir_grid_weights - ir_kpoints_weights[id_map]) < 1e-8).all()
+    assert (np.abs(ir_grid_weights - ir_kpoints_weights[id_map]) < 1e-8).all()
 
     # Convert kpoints order to that of phono3py using mapping table.
     freqs_ordered = freqs[id_map]
@@ -79,10 +79,10 @@ def load_vaspout_h5(self, h5_filename: str) -> SelfenPH:
         numbers=numbers,
         temps=temps,
         dos_at_ef=dos_at_ef,
-        bz_grid=_bz_grid,
-        ir_grid_points=_ir_grid_points,
-        ir_grid_weights=_ir_grid_weights,
-        ir_grid_map=_ir_grid_map,
+        bz_grid=bz_grid,
+        ir_grid_points=ir_grid_points,
+        ir_grid_weights=ir_grid_weights,
+        ir_grid_map=ir_grid_map,
         a2f_vasp=a2f_vasp,
         freq_points_vasp=freq_points_vasp,
         freqs=freqs_ordered,
